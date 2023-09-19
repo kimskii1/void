@@ -1,0 +1,56 @@
+version: '3.7'
+networks:
+  default:
+    name: test1-default
+services:
+  php-auth:
+    container_name: 'void-auth'
+    image: 'kimskii/php8.1-fpm'
+    working_dir: /application
+    volumes:
+      - '${PROJECT_AUTH_PATH}:/application'
+  php-user:
+    container_name: 'void-user'
+    image: 'kimskii/php8.1-fpm'
+    working_dir: /application
+    volumes:
+      - '${PROJECT_USER_PATH}:/application'
+#  nodejs:
+#    container_name: 'test1-front'
+#    build:
+#      context: .
+#      dockerfile: dockerfiles/nodejs/Dockerfile
+#    ports:
+#      - "${PROJECT_FRONT_PORT}:8080"
+#    command: /bin/sh -c "npm install && npm run serve"
+#    volumes:
+#      - '${PROJECT_FRONT_PATH}/:/app'
+  pgsql:
+    container_name: 'void-db'
+    image: postgres
+#    restart: always
+    environment:
+      - 'POSTGRES_USER=${DB_USER}'
+      - 'POSTGRES_PASSWORD=${DB_PASSWORD}'
+    volumes:
+      - ./pgsql/data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+  webserver:
+    container_name: 'void-webserver'
+    image: 'nginx:alpine'
+    working_dir: /application
+    volumes:
+      - '${PROJECT_AUTH_PATH}:/application'
+      - './nginx/:/etc/nginx/conf.d/'
+    ports:
+      - '${PROJECT_AUTH_PORT}:8080'
+      - '${PROJECT_USER_PORT}:8081'
+  cache:
+    container_name: 'void-cache'
+    image: redis:6.2-alpine
+#    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./redis/data:/data

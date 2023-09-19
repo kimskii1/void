@@ -1,0 +1,7 @@
+framework:
+    cache:
+        default_redis_provider: '%env(resolve:REDIS_DSN)%'
+
+        pools:
+            common_redis.cache:
+                adapter: cache.adapter.redis
